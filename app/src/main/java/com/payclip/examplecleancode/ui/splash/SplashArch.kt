@@ -3,6 +3,7 @@ package com.payclip.examplecleancode.ui.splash
 import android.app.Activity
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
+import androidx.lifecycle.LifecycleOwner
 import com.payclip.examplecleancode.arch.ActionState
 import com.payclip.examplecleancode.arch.UiState
 
@@ -10,7 +11,7 @@ sealed class SplashAction : ActionState {
     object Start : SplashAction()
     object CheckPermissions : SplashAction()
     data class RequestPermissions(val activity: Activity) : SplashAction()
-    object CheckAccount : SplashAction()
+    data class CheckAccount(val lifecycle: LifecycleOwner) : SplashAction()
     data class RequestAccount(val launcher: ActivityResultLauncher<Intent>) : SplashAction()
     data class SaveAccount(val account: String) : SplashAction()
 }

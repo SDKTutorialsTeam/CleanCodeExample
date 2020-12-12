@@ -4,22 +4,22 @@ import android.accounts.AccountManager
 import android.app.Activity
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.*
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-import com.payclip.data.models.Result
 import com.payclip.domain.User
 import com.payclip.examplecleancode.arch.ActionState
 import com.payclip.examplecleancode.arch.ScopedViewModel
 import com.payclip.examplecleancode.permissions.PermissionChecker
-import com.payclip.usecases.ExistUserUC
+import com.payclip.usecases.GetUserUC
 import com.payclip.usecases.SaveUserUC
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SplashViewModel(
     private val permissionChecker: PermissionChecker,
     private val googleAccountCredential: GoogleAccountCredential,
-    private val existUser: ExistUserUC,
+    getUserUC: GetUserUC,
     private val saveUser: SaveUserUC,
     uiDispatcher: CoroutineDispatcher
 ) : ScopedViewModel<SplashUI>(uiDispatcher) {
@@ -29,6 +29,9 @@ class SplashViewModel(
             if (mModel.value == null) dispatch(SplashAction.Start)
             return mModel
         }
+
+    private val userObserver = Observer<User?>(::handleUserResponse)
+    private val userLiveData = getUserUC().asLiveData(Dispatchers.Main)
 
     val resultSessionCompletion: (Intent?) -> Unit = {
         it?.extras?.getString(AccountManager.KEY_ACCOUNT_NAME)?.let { account ->
@@ -47,7 +50,7 @@ class SplashViewModel(
             SplashAction.Start -> consume(SplashUI.Start)
             SplashAction.CheckPermissions -> checkPermissions()
             is SplashAction.RequestPermissions -> requestPermissions(action.activity)
-            SplashAction.CheckAccount -> checkAccount()
+            is SplashAction.CheckAccount -> checkAccount(action.lifecycle)
             is SplashAction.RequestAccount -> requestAccount(action.launcher)
             is SplashAction.SaveAccount -> saveUserAccount(action.account)
         }
@@ -69,8 +72,13 @@ class SplashViewModel(
         }
     }
 
-    private fun checkAccount() = launch {
-        if (existUser()) {
+    private fun checkAccount(lifecycle: LifecycleOwner) = launch {
+        userLiveData.observe(lifecycle, userObserver)
+    }
+
+    private fun handleUserResponse(user: User?) {
+        if (user != null) {
+            userLiveData.removeObserver(userObserver)
             consume(SplashUI.NavigateToMain)
         } else {
             consume(SplashUI.AccountNotExist)
@@ -82,9 +90,8 @@ class SplashViewModel(
     }
 
     private fun saveUserAccount(account: String) = launch {
-        when(saveUser(User(accountName = account))) {
-            is Result.Success -> consume(SplashUI.NavigateToMain)
-            is Result.Failure -> consume(SplashUI.ShowError)
+        if(!saveUser(User(accountName = account))) {
+            consume(SplashUI.ShowError)
         }
     }
 

@@ -1,13 +1,12 @@
 package com.payclip.data.sources
 
-import com.payclip.data.models.Result
 import com.payclip.domain.User
+import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {
 
-    suspend fun existUser(): Boolean
-    suspend fun getUser(): Result<User>
-    suspend fun saveUser(user: User): Result<User>
+    fun getUser(): Flow<User?>
+    suspend fun saveUser(user: User): Boolean
     suspend fun updateUser(user: User): Boolean
     suspend fun removeUser(): Boolean
 

@@ -1,9 +1,9 @@
 package com.payclip.examplecleancode.server
 
-import com.payclip.data.models.Result
 import com.payclip.data.sources.RemoteDataSource
 import com.payclip.domain.Video
-import java.io.IOException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class YoutubeRemoteDataSource(private val youtubeApi: YoutubeApi) : RemoteDataSource {
 
@@ -13,34 +13,16 @@ class YoutubeRemoteDataSource(private val youtubeApi: YoutubeApi) : RemoteDataSo
 
     private val maxVideoCount = 50L
 
-    override suspend fun searchVideo(apiKey: String, title: String): Result<List<Video>> {
-        return try {
-//            val search = youtubeSession.create()
-//                .Search()
-//                .list("id,snippet")
-//                .setType("video")
-//                .setMaxResults(maxVideoCount)
-//                .setSafeSearch("strict")
-//                .setVideoDuration("medium")
-//                .setFields(fields)
-//
-//            val list = search
-//                .setKey(apiKey)
-//                .setQ(title)
-//
-//            list.execute().items
-            Result.Success(listOf())
-        } catch (e: IOException) {
-            Result.Failure(e)
-        }
+    override fun getHomeVideo(apiKey: String): Flow<List<Video>> = flow {
+
     }
 
-    override suspend fun getPopularVideo(apiKey: String): Result<List<Video>> {
-        TODO("Not yet implemented")
+    override fun getPopularVideo(apiKey: String): Flow<List<Video>> = flow {
+
     }
 
-    override suspend fun getHomeVideo(apiKey: String): Result<List<Video>> {
-        TODO("Not yet implemented")
+    override fun searchVideo(apiKey: String, title: String): Flow<List<Video>> = flow {
+
     }
 
 }

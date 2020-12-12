@@ -13,23 +13,22 @@ import com.payclip.examplecleancode.database.RoomDataSource
 import com.payclip.examplecleancode.database.UserDataBase
 import com.payclip.examplecleancode.permissions.AndroidPermissionChecker
 import com.payclip.examplecleancode.permissions.PermissionChecker
-import com.payclip.examplecleancode.server.YoutubeRemoteDataSource
 import com.payclip.examplecleancode.server.YoutubeApi
-import com.payclip.examplecleancode.ui.MainActivity
+import com.payclip.examplecleancode.server.YoutubeRemoteDataSource
 import com.payclip.examplecleancode.ui.dashboard.DashBoardViewModel
 import com.payclip.examplecleancode.ui.dashboard.DashboardFragment
 import com.payclip.examplecleancode.ui.splash.SplashFragment
 import com.payclip.examplecleancode.ui.splash.SplashViewModel
-import com.payclip.usecases.ExistUserUC
+import com.payclip.usecases.GetUserUC
 import com.payclip.usecases.SaveUserUC
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.qualifier.named
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 fun Application.initDI() {
@@ -75,7 +74,7 @@ private val scopesModule = module {
     scope(named<SplashFragment>()) {
         viewModel { SplashViewModel(get(), get(), get(), get(), get()) }
         scoped { SaveUserUC(get()) }
-        scoped { ExistUserUC(get()) }
+        scoped { GetUserUC(get()) }
     }
     scope(named<DashboardFragment>()) {
         viewModel { DashBoardViewModel(get()) }

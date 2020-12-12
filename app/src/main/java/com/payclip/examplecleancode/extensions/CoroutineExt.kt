@@ -1,10 +1,15 @@
 package com.payclip.examplecleancode.extensions
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-inline fun launchInUI(crossinline continuation: suspend CoroutineScope.() -> Unit) =
-    CoroutineScope(Main).launch {
-        continuation.invoke(this)
+inline fun <T> Flow<T>.collectOnMain(
+    crossinline action: suspend (value: T) -> Unit
+) {
+    GlobalScope.launch(Dispatchers.Main) {
+        collect { action(it) }
     }
+}

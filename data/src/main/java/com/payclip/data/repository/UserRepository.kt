@@ -1,29 +1,17 @@
 package com.payclip.data.repository
 
-import com.payclip.data.models.Result
 import com.payclip.data.sources.LocalDataSource
 import com.payclip.domain.User
+import kotlinx.coroutines.flow.Flow
 
 class UserRepository(private val localDataSource: LocalDataSource) {
 
-    suspend fun existUser(): Boolean {
-        return localDataSource.existUser()
-    }
+    fun getUser(): Flow<User?> = localDataSource.getUser()
 
-    suspend fun getUser(): Result<User> {
-        return localDataSource.getUser()
-    }
+    suspend fun updateUser(user: User): Boolean = localDataSource.updateUser(user)
 
-    suspend fun updateUser(user: User): Boolean {
-        return localDataSource.updateUser(user)
-    }
+    suspend fun saveUser(user: User): Boolean = localDataSource.saveUser(user)
 
-    suspend fun saveUser(user: User): Result<User> {
-        return localDataSource.saveUser(user)
-    }
-
-    suspend fun removeUser(): Boolean {
-        return localDataSource.removeUser()
-    }
+    suspend fun removeUser(): Boolean = localDataSource.removeUser()
 
 }

@@ -30,7 +30,7 @@ class SplashFragment : BaseFragment<SplashUI, SplashViewModel>(R.layout.splash_f
                 }
             }
             SplashUI.PermissionsDenied -> Toast.makeText(requireContext(), "Permisos necesarios para continuar...", Toast.LENGTH_SHORT).show()
-            SplashUI.PermissionsGranted -> viewModel.dispatch(SplashAction.CheckAccount)
+            SplashUI.PermissionsGranted -> viewModel.dispatch(SplashAction.CheckAccount(viewLifecycleOwner))
             SplashUI.AccountNotExist -> viewModel.dispatch(SplashAction.RequestAccount(registerForResult))
             SplashUI.AccountNotSelected -> Toast.makeText(requireContext(), "Cuenta necesaria para continuar...", Toast.LENGTH_SHORT).show()
             is SplashUI.AccountSelected -> viewModel.dispatch(SplashAction.SaveAccount(state.accountName))
