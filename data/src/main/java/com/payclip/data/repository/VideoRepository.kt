@@ -6,16 +6,13 @@ import kotlinx.coroutines.flow.Flow
 
 class VideoRepository(private val remoteDataSource: RemoteDataSource, private val apiKey: String) {
 
-    fun searchVideo(title: String): Flow<List<Video>> {
-        return remoteDataSource.searchVideo(apiKey, title)
-    }
+    fun searchVideo(title: String): Flow<List<Video>> =
+        remoteDataSource.searchVideo(apiKey, title)
 
-    fun getPopularVideo(): Flow<List<Video>> {
-        return remoteDataSource.getPopularVideo(apiKey)
-    }
+    fun getPopularVideo(): Flow<List<Video>> =
+        remoteDataSource.getPopularVideo(apiKey)
 
-    fun getHomeVideo(): Flow<List<Video>> {
-        return remoteDataSource.getHomeVideo(apiKey)
-    }
+    fun getHomeVideo(): Flow<List<Video>> =
+        remoteDataSource.getHomeVideo(apiKey)
 
 }

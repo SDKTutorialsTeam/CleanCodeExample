@@ -79,6 +79,7 @@ class SplashViewModel(
     private fun handleUserResponse(user: User?) {
         if (user != null) {
             userLiveData.removeObserver(userObserver)
+            googleAccountCredential.selectedAccountName = user.accountName
             consume(SplashUI.NavigateToMain)
         } else {
             consume(SplashUI.AccountNotExist)

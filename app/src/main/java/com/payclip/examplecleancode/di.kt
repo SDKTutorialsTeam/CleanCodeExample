@@ -21,6 +21,7 @@ import com.payclip.examplecleancode.ui.splash.SplashFragment
 import com.payclip.examplecleancode.ui.splash.SplashViewModel
 import com.payclip.usecases.GetUserUC
 import com.payclip.usecases.SaveUserUC
+import com.payclip.usecases.SearchVideoUC
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidApplication
@@ -77,6 +78,7 @@ private val scopesModule = module {
         scoped { GetUserUC(get()) }
     }
     scope(named<DashboardFragment>()) {
-        viewModel { DashBoardViewModel(get()) }
+        viewModel { DashBoardViewModel(get(), get()) }
+        scoped { SearchVideoUC(get()) }
     }
 }
