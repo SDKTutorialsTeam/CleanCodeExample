@@ -14,6 +14,7 @@ sealed class SplashAction : ActionState {
     data class CheckAccount(val lifecycle: LifecycleOwner) : SplashAction()
     data class RequestAccount(val launcher: ActivityResultLauncher<Intent>) : SplashAction()
     data class SaveAccount(val account: String) : SplashAction()
+    data class RequestYoutubePermissions(val launcher: ActivityResultLauncher<Intent>, val intent: Intent): SplashAction()
 }
 
 sealed class SplashUI : UiState {
@@ -24,6 +25,7 @@ sealed class SplashUI : UiState {
     object AccountNotExist : SplashUI()
     object AccountNotSelected : SplashUI()
     data class AccountSelected(val accountName: String) : SplashUI()
+    data class YoutubePermissionsNeeded(val intent: Intent): SplashUI()
     object NavigateToMain : SplashUI()
     object ShowError : SplashUI()
 }

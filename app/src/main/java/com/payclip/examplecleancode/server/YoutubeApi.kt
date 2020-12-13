@@ -6,7 +6,7 @@ import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.youtube.YouTube
 
-class YoutubeApi(private val appName: String, private val googleAccount: GoogleAccountCredential) {
+class YoutubeApi(private val appName: String, val googleAccount: GoogleAccountCredential) {
 
     private val transport = NetHttpTransport()
     private val jsonFactory: JsonFactory = GsonFactory()

@@ -34,6 +34,12 @@ class SplashFragment : BaseFragment<SplashUI, SplashViewModel>(R.layout.splash_f
             SplashUI.AccountNotExist -> viewModel.dispatch(SplashAction.RequestAccount(registerForResult))
             SplashUI.AccountNotSelected -> Toast.makeText(requireContext(), "Cuenta necesaria para continuar...", Toast.LENGTH_SHORT).show()
             is SplashUI.AccountSelected -> viewModel.dispatch(SplashAction.SaveAccount(state.accountName))
+            is SplashUI.YoutubePermissionsNeeded -> {
+                with(viewModel) {
+                    fragmentResultCompletion = resultSessionTokenCompletion
+                    dispatch(SplashAction.RequestYoutubePermissions(registerForResult, state.intent))
+                }
+            }
             SplashUI.NavigateToMain -> navigateTo(R.id.action_splashFragment_to_dashboardFragment)
             SplashUI.ShowError -> Toast.makeText(requireContext(), "Ocurrió un error al guardar los datos...", Toast.LENGTH_SHORT).show()
         }

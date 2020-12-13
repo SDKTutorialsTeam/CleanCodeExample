@@ -20,6 +20,7 @@ import com.payclip.examplecleancode.ui.dashboard.DashboardFragment
 import com.payclip.examplecleancode.ui.splash.SplashFragment
 import com.payclip.examplecleancode.ui.splash.SplashViewModel
 import com.payclip.usecases.GetUserUC
+import com.payclip.usecases.RequestUserTokenUC
 import com.payclip.usecases.SaveUserUC
 import com.payclip.usecases.SearchVideoUC
 import kotlinx.coroutines.CoroutineDispatcher
@@ -62,20 +63,21 @@ private val appModule = module {
     factory<PermissionChecker> { AndroidPermissionChecker(androidContext()) }
     single { UserDataBase.build(get()) }
     factory<LocalDataSource> { RoomDataSource(get()) }
-    factory<RemoteDataSource> { YoutubeRemoteDataSource(get()) }
+    factory<RemoteDataSource> { YoutubeRemoteDataSource(androidContext(), get()) }
     single<CoroutineDispatcher> { Dispatchers.Main }
 }
 
 private val dataModule = module {
-    factory { UserRepository(get()) }
+    factory { UserRepository(get(), get()) }
     factory { VideoRepository(get(), get(named("apiKey"))) }
 }
 
 private val scopesModule = module {
     scope(named<SplashFragment>()) {
-        viewModel { SplashViewModel(get(), get(), get(), get(), get()) }
+        viewModel { SplashViewModel(get(), get(), get(), get(), get(), get()) }
         scoped { SaveUserUC(get()) }
         scoped { GetUserUC(get()) }
+        scoped { RequestUserTokenUC(get()) }
     }
     scope(named<DashboardFragment>()) {
         viewModel { DashBoardViewModel(get(), get()) }
