@@ -1,5 +1,13 @@
 <resources>
     <string name="app_name">Youtube CleanCode</string>
     <string name="api_key">AIzaSyAHSLdSpQw75W8aBMpL7c0YEYtuLeAwzC4</string>
-<!--<string name="client_id">44867959160-0mgumd51pcapddi7de2p2p2ijj8n4dg3.apps.googleusercontent.com</string>-->
+
+    <string name="cd_home">Home section</string>
+    <string name="title_home">Home</string>
+    <string name="cd_popular">Popular section</string>
+    <string name="title_popular">Popular</string>
+    <string name="cd_search">Search section</string>
+    <string name="title_search">Search</string>
+
+
 </resources>

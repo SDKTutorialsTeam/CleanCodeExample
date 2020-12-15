@@ -7,4 +7,6 @@ sealed class DashboardAction : ActionState {
     object Start : DashboardAction()
 }
 
-sealed class DashboardUI : UiState
+sealed class DashboardUI : UiState {
+    object ChangeNavigation: DashboardUI()
+}

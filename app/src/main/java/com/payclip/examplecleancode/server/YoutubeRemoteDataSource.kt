@@ -39,9 +39,9 @@ class YoutubeRemoteDataSource(private val context: Context, private val youtubeA
     override fun getHomeVideo(apiKey: String): Flow<List<Video>> = flow {
         try {
             youtubeApi.create()
-                .Subscriptions().runCatching {
+                .Activities().runCatching {
                     val home = this.list("snippet,contentDetails")
-                        .setMine(true)
+                        .setHome(true)
                         .setKey(apiKey)
 
                     withContext(Dispatchers.IO) {

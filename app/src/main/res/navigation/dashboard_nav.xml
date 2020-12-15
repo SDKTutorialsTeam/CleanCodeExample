@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/dashboard_nav"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.payclip.examplecleancode.ui.home.HomeFragment"
+        android:label="home"
+        tools:layout="@layout/home_fragment"/>
+
+    <fragment
+        android:id="@+id/popularFragment"
+        android:name="com.payclip.examplecleancode.ui.popular.PopularFragment"
+        android:label="popular"
+        tools:layout="@layout/popular_fragment"/>
+
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.payclip.examplecleancode.ui.search.SearchFragment"
+        android:label="search"
+        tools:layout="@layout/search_fragment"/>
+
+</navigation>
