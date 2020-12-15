@@ -1,7 +1,11 @@
 package com.payclip.examplecleancode.extensions
 
+import com.google.api.services.youtube.model.SearchListResponse
+import com.google.api.services.youtube.model.SubscriptionListResponse
+import com.google.api.services.youtube.model.VideoListResponse
 import com.payclip.domain.Avatar
 import com.payclip.domain.User
+import com.payclip.domain.Video
 import com.payclip.examplecleancode.database.User as UserDb
 
 fun UserDb.toUser(): User = User(
@@ -19,3 +23,33 @@ fun User.toUserDb(): UserDb = UserDb(
     avatar.name,
     lastVideoWatched
 )
+
+fun SubscriptionListResponse.toVideoList(): List<Video> = this.items.map {
+    Video(
+        it.id,
+        it.snippet.channelId,
+        it.snippet.channelTitle,
+        it.snippet.title,
+        it.snippet.thumbnails.medium.url
+    )
+}
+
+fun VideoListResponse.toVideoList(): List<Video> = this.items.map {
+    Video(
+        it.id,
+        it.snippet.channelId,
+        it.snippet.channelTitle,
+        it.snippet.title,
+        it.snippet.thumbnails.medium.url
+    )
+}
+
+fun SearchListResponse.toVideoList(): List<Video> = this.items.map {
+    Video(
+        it.id.videoId,
+        it.snippet.channelId,
+        it.snippet.channelTitle,
+        it.snippet.title,
+        it.snippet.thumbnails.medium.url
+    )
+}

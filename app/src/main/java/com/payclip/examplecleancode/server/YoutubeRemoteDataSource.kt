@@ -5,10 +5,10 @@ import com.google.android.gms.auth.GoogleAuthUtil
 import com.payclip.data.sources.RemoteDataSource
 import com.payclip.domain.Access
 import com.payclip.domain.Video
+import com.payclip.examplecleancode.extensions.toVideoList
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import java.io.IOException
 import kotlin.coroutines.resume
 
 class YoutubeRemoteDataSource(private val context: Context, private val youtubeApi: YoutubeApi) : RemoteDataSource {
@@ -16,8 +16,6 @@ class YoutubeRemoteDataSource(private val context: Context, private val youtubeA
     private val fields: String by lazy {
         "items(id/kind,id/videoId,snippet/channelId,snippet/title,snippet/thumbnails/medium/url,snippet/channelTitle)"
     }
-
-    private val maxVideoCount = 50L
 
     override fun requestYoutubeAccess(): Flow<Access> = flow {
         emit(
@@ -39,11 +37,50 @@ class YoutubeRemoteDataSource(private val context: Context, private val youtubeA
     }
 
     override fun getHomeVideo(apiKey: String): Flow<List<Video>> = flow {
+        try {
+            youtubeApi.create()
+                .Subscriptions().runCatching {
+                    val home = this.list("snippet,contentDetails")
+                        .setMine(true)
+                        .setKey(apiKey)
 
+                    withContext(Dispatchers.IO) {
+                        home.execute()
+                    }
+                }.onSuccess {
+                    emit(it.toVideoList())
+                }.onFailure {
+                    it.printStackTrace()
+                    emit(listOf<Video>())
+                }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(listOf<Video>())
+        }
     }
 
     override fun getPopularVideo(apiKey: String): Flow<List<Video>> = flow {
+        try {
+            youtubeApi.create()
+                .Videos().runCatching {
+                    val popular = this.list("snippet,contentDetails,statistics")
+                        .setChart("mostPopular")
+                        .setRegionCode("MX")
+                        .setKey(apiKey)
 
+                    withContext(Dispatchers.IO) {
+                        popular.execute()
+                    }
+                }.onSuccess {
+                    emit(it.toVideoList())
+                }.onFailure {
+                    it.printStackTrace()
+                    emit(listOf<Video>())
+                }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(listOf<Video>())
+        }
     }
 
     override fun searchVideo(apiKey: String, title: String): Flow<List<Video>> = flow {
@@ -52,7 +89,6 @@ class YoutubeRemoteDataSource(private val context: Context, private val youtubeA
                 .Search().runCatching {
                     val search = this.list("id,snippet")
                         .setType("video")
-                        .setMaxResults(maxVideoCount)
                         .setSafeSearch("strict")
                         .setVideoDuration("medium")
                         .setFields(fields)
@@ -63,13 +99,12 @@ class YoutubeRemoteDataSource(private val context: Context, private val youtubeA
                         search.execute()
                     }
                 }.onSuccess {
-                    //emit(it.items)
-                    println("YoutubeRemoteDataSource.searchVideo --> ${it.items.toList()}")
+                    emit(it.toVideoList())
                 }.onFailure {
                     it.printStackTrace()
                     emit(listOf<Video>())
                 }
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             e.printStackTrace()
             emit(listOf<Video>())
         }
