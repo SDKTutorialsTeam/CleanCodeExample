@@ -6,6 +6,7 @@ import com.payclip.examplecleancode.arch.ScopedViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 
 class SearchViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<SearchUI>(uiDispatcher) {
+
     override val model: LiveData<SearchUI>
         get() = mModel
 

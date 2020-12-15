@@ -4,7 +4,9 @@ import android.content.Context
 import com.google.android.gms.auth.GoogleAuthUtil
 import com.payclip.data.sources.RemoteDataSource
 import com.payclip.domain.Access
+import com.payclip.domain.Channel
 import com.payclip.domain.Video
+import com.payclip.examplecleancode.extensions.toChannelList
 import com.payclip.examplecleancode.extensions.toVideoList
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
@@ -12,10 +14,6 @@ import kotlinx.coroutines.flow.flow
 import kotlin.coroutines.resume
 
 class YoutubeRemoteDataSource(private val context: Context, private val youtubeApi: YoutubeApi) : RemoteDataSource {
-
-    private val fields: String by lazy {
-        "items(id/kind,id/videoId,snippet/channelId,snippet/title,snippet/thumbnails/medium/url,snippet/channelTitle)"
-    }
 
     override fun requestYoutubeAccess(): Flow<Access> = flow {
         emit(
@@ -36,16 +34,41 @@ class YoutubeRemoteDataSource(private val context: Context, private val youtubeA
         )
     }
 
-    override fun getHomeVideo(apiKey: String): Flow<List<Video>> = flow {
+    override fun getSubscription(apiKey: String): Flow<List<Channel>> = flow {
         try {
             youtubeApi.create()
-                .Activities().runCatching {
-                    val home = this.list("snippet,contentDetails")
-                        .setHome(true)
+                .Channels().runCatching {
+                    val channels = this.list("id,contentDetails")
+                        .setMine(true)
+                        .setFields("items/contentDetails,nextPageToken,pageInfo")
                         .setKey(apiKey)
 
                     withContext(Dispatchers.IO) {
-                        home.execute()
+                        channels.execute()
+                    }
+                }.onSuccess {
+                    emit(it.toChannelList())
+                }.onFailure {
+                    it.printStackTrace()
+                    emit(listOf<Channel>())
+                }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emit(listOf<Channel>())
+        }
+    }
+
+    override fun getVideosBySubscription(apiKey: String, playlistId: String): Flow<List<Video>> = flow {
+        try {
+            youtubeApi.create()
+                .PlaylistItems().runCatching {
+                    val videos = this.list("id,contentDetails,snippet")
+                        .setPlaylistId(playlistId)
+                        .setFields("items(contentDetails/videoId,snippet/title,snippet/publishedAt),nextPageToken,pageInfo")
+                        .setKey(apiKey)
+
+                    withContext(Dispatchers.IO) {
+                        videos.execute()
                     }
                 }.onSuccess {
                     emit(it.toVideoList())
@@ -91,7 +114,7 @@ class YoutubeRemoteDataSource(private val context: Context, private val youtubeA
                         .setType("video")
                         .setSafeSearch("strict")
                         .setVideoDuration("medium")
-                        .setFields(fields)
+                        .setFields("items(id/kind,id/videoId,snippet/channelId,snippet/title,snippet/thumbnails/medium/url,snippet/channelTitle)")
                         .setKey(apiKey)
                         .setQ(title)
 

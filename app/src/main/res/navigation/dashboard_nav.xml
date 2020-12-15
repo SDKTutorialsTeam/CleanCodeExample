@@ -3,13 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/dashboard_nav"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/popularFragment">
 
     <fragment
-        android:id="@+id/homeFragment"
-        android:name="com.payclip.examplecleancode.ui.home.HomeFragment"
-        android:label="home"
-        tools:layout="@layout/home_fragment"/>
+        android:id="@+id/subscriptionsFragment"
+        android:name="com.payclip.examplecleancode.ui.subscriptions.SubscriptionsFragment"
+        android:label="subscriptions"
+        tools:layout="@layout/subscriptions_fragment"/>
 
     <fragment
         android:id="@+id/popularFragment"

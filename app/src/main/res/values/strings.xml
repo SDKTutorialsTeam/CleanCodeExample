@@ -2,8 +2,8 @@
     <string name="app_name">Youtube CleanCode</string>
     <string name="api_key">AIzaSyAHSLdSpQw75W8aBMpL7c0YEYtuLeAwzC4</string>
 
-    <string name="cd_home">Home section</string>
-    <string name="title_home">Home</string>
+    <string name="cd_home">Subscriptions section</string>
+    <string name="title_home">Subscriptions</string>
     <string name="cd_popular">Popular section</string>
     <string name="title_popular">Popular</string>
     <string name="cd_search">Search section</string>

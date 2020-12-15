@@ -17,8 +17,8 @@ import com.payclip.examplecleancode.server.YoutubeApi
 import com.payclip.examplecleancode.server.YoutubeRemoteDataSource
 import com.payclip.examplecleancode.ui.dashboard.DashBoardViewModel
 import com.payclip.examplecleancode.ui.dashboard.DashboardFragment
-import com.payclip.examplecleancode.ui.home.HomeFragment
-import com.payclip.examplecleancode.ui.home.HomeViewModel
+import com.payclip.examplecleancode.ui.subscriptions.SubscriptionsFragment
+import com.payclip.examplecleancode.ui.subscriptions.SubscriptionsViewModel
 import com.payclip.examplecleancode.ui.popular.PopularFragment
 import com.payclip.examplecleancode.ui.popular.PopularViewModel
 import com.payclip.examplecleancode.ui.search.SearchFragment
@@ -85,12 +85,13 @@ private val scopesModule = module {
     scope(named<DashboardFragment>()) {
         viewModel { DashBoardViewModel(get()) }
     }
-    scope(named<HomeFragment>()) {
-        viewModel { HomeViewModel(get(), get()) }
-        scoped { GetHomeVideosUC(get()) }
+    scope(named<SubscriptionsFragment>()) {
+        viewModel { SubscriptionsViewModel(get(), get()) }
+        scoped { GetSubscriptionsUC(get()) }
     }
     scope(named<PopularFragment>()) {
-        viewModel { PopularViewModel(get()) }
+        viewModel { PopularViewModel(get(), get()) }
+        scoped { GetPopularVideosUC(get()) }
     }
     scope(named<SearchFragment>()) {
         viewModel { SearchViewModel(get()) }
