@@ -1,19 +1,17 @@
 package com.payclip.examplecleancode.ui.popular
 
-import androidx.lifecycle.LiveData
-import com.payclip.examplecleancode.arch.ActionState
 import com.payclip.examplecleancode.arch.ScopedViewModel
 import com.payclip.usecases.GetPopularVideosUC
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-class PopularViewModel(private val getPopularVideos: GetPopularVideosUC, uiDispatcher: CoroutineDispatcher) : ScopedViewModel<PopularUI>(uiDispatcher) {
+class PopularViewModel(private val getPopularVideos: GetPopularVideosUC, uiDispatcher: CoroutineDispatcher) : ScopedViewModel<PopularUI, PopularAction>(uiDispatcher) {
 
-    override val model: LiveData<PopularUI>
-        get() = mModel
+    override val mutableState: MutableStateFlow<PopularUI> = MutableStateFlow(PopularUI.Init)
 
-    override fun dispatch(action: ActionState) {
+    override fun onAction(action: PopularAction) {
         when(action) {
             PopularAction.ObtainPopularVideos -> {
                 obtainVideos()
@@ -22,9 +20,9 @@ class PopularViewModel(private val getPopularVideos: GetPopularVideosUC, uiDispa
     }
 
     private fun obtainVideos() = launch {
-        consume(PopularUI.Loading)
+        renderOnView(PopularUI.Loading)
         getPopularVideos().collect {
-            consume(PopularUI.RenderVideos(it))
+            renderOnView(PopularUI.RenderVideos(it))
         }
     }
 

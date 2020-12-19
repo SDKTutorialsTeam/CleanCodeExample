@@ -5,13 +5,18 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.LayoutRes
-import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.koin.androidx.scope.ScopeFragment
 
-abstract class BaseFragment<UI: UiState, VM: ScopedViewModel<UI>>(@LayoutRes layout: Int) : ScopeFragment(layout) {
+abstract class BaseFragment<UI: UiState, A: ActionState, VM: ScopedViewModel<UI, A>>(@LayoutRes layout: Int) : ScopeFragment(layout) {
 
     abstract val viewModel: VM
     open var fragmentResultCompletion: (Intent?) -> Unit = {}
+
+    private lateinit var uiStateJob: Job
 
     val registerForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result?.resultCode == Activity.RESULT_OK) {
@@ -23,10 +28,22 @@ abstract class BaseFragment<UI: UiState, VM: ScopedViewModel<UI>>(@LayoutRes lay
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        viewModel.model.observe(this@BaseFragment, Observer(::updateUi))
+        uiStateJob = lifecycleScope.launch {
+            viewModel.state.collect(::render)
+        }
     }
 
-    abstract fun updateUi(state: UiState)
+    abstract fun render(state: UI)
+
+    fun sendAction(action: A) {
+        lifecycleScope.launch {
+            viewModel.actionFlow.emit(action)
+        }
+    }
+
+    override fun onDetach() {
+        uiStateJob.cancel()
+        super.onDetach()
+    }
 
 }

@@ -1,20 +1,21 @@
 package com.payclip.examplecleancode.ui.subscriptions
 
-import androidx.lifecycle.LiveData
-import com.payclip.examplecleancode.arch.ActionState
 import com.payclip.examplecleancode.arch.ScopedViewModel
 import com.payclip.usecases.GetSubscriptionsUC
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-class SubscriptionsViewModel(private val getSubscriptions: GetSubscriptionsUC, uiDispatcher: CoroutineDispatcher) : ScopedViewModel<SubscriptionsUI>(uiDispatcher) {
+class SubscriptionsViewModel(
+    private val getSubscriptions: GetSubscriptionsUC,
+    uiDispatcher: CoroutineDispatcher
+) : ScopedViewModel<SubscriptionsUI, SubscriptionsAction>(uiDispatcher) {
 
-    override val model: LiveData<SubscriptionsUI>
-        get() = mModel
+    override val mutableState: MutableStateFlow<SubscriptionsUI> = MutableStateFlow(SubscriptionsUI.Init)
 
-    override fun dispatch(action: ActionState) {
-        when(action) {
+    override fun onAction(action: SubscriptionsAction) {
+        when (action) {
             SubscriptionsAction.ObtainHomeChannels -> {
                 obtainVideos()
             }
@@ -22,9 +23,9 @@ class SubscriptionsViewModel(private val getSubscriptions: GetSubscriptionsUC, u
     }
 
     private fun obtainVideos() = launch {
-        consume(SubscriptionsUI.Loading)
+        renderOnView(SubscriptionsUI.Loading)
         getSubscriptions().collect {
-            consume(SubscriptionsUI.RenderChannels(it))
+            renderOnView(SubscriptionsUI.RenderChannels(it))
         }
     }
 

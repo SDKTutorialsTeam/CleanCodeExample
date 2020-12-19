@@ -5,13 +5,11 @@ import android.app.Activity
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.asLiveData
 import com.google.android.gms.auth.UserRecoverableAuthException
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.payclip.domain.User
-import com.payclip.examplecleancode.arch.ActionState
 import com.payclip.examplecleancode.arch.ScopedViewModel
 import com.payclip.examplecleancode.permissions.PermissionChecker
 import com.payclip.usecases.GetUserUC
@@ -19,6 +17,7 @@ import com.payclip.usecases.RequestUserTokenUC
 import com.payclip.usecases.SaveUserUC
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -29,28 +28,24 @@ class SplashViewModel(
     private val saveUser: SaveUserUC,
     private val requestToken: RequestUserTokenUC,
     uiDispatcher: CoroutineDispatcher
-) : ScopedViewModel<SplashUI>(uiDispatcher) {
+) : ScopedViewModel<SplashUI, SplashAction>(uiDispatcher) {
 
-    override val model: LiveData<SplashUI>
-        get() {
-            if (mModel.value == null) dispatch(SplashAction.Start)
-            return mModel
-        }
+    override val mutableState: MutableStateFlow<SplashUI> = MutableStateFlow(SplashUI.Init)
 
     private val userObserver = Observer<User?>(::handleUserResponse)
     private val userLiveData = getUserUC().asLiveData(Dispatchers.Main)
 
     val resultSessionCompletion: (Intent?) -> Unit = {
         it?.extras?.getString(AccountManager.KEY_ACCOUNT_NAME)?.let { account ->
-            consume(SplashUI.AccountSelected(account))
-        } ?: consume(SplashUI.AccountNotSelected)
+            renderOnView(SplashUI.AccountSelected(account))
+        } ?: renderOnView(SplashUI.AccountNotSelected)
     }
 
     val resultSessionTokenCompletion: (Intent?) -> Unit = {
         if (it != null) {
-            consume(SplashUI.NavigateToMain)
+            renderOnView(SplashUI.NavigateToMain)
         } else {
-            consume(SplashUI.ShowError)
+            renderOnView(SplashUI.ShowError)
         }
     }
 
@@ -60,9 +55,9 @@ class SplashViewModel(
         initScope()
     }
 
-    override fun dispatch(action: ActionState) {
+    override fun onAction(action: SplashAction) {
         when (action) {
-            SplashAction.Start -> consume(SplashUI.Start)
+            SplashAction.Start -> renderOnView(SplashUI.Start)
             SplashAction.CheckPermissions -> checkPermissions()
             is SplashAction.RequestPermissions -> requestPermissions(action.activity)
             is SplashAction.CheckAccount -> checkAccount(action.lifecycle)
@@ -74,17 +69,17 @@ class SplashViewModel(
 
     private fun checkPermissions() {
         if (permissionChecker.check(permissionsNeeded)) {
-            consume(SplashUI.PermissionsGranted)
+            renderOnView(SplashUI.PermissionsGranted)
         } else {
-            consume(SplashUI.MissingPermissions)
+            renderOnView(SplashUI.MissingPermissions)
         }
     }
 
     private fun requestPermissions(activity: Activity) = launch {
         if (permissionChecker.requestPermissions(activity, permissionsNeeded)) {
-            consume(SplashUI.PermissionsGranted)
+            renderOnView(SplashUI.PermissionsGranted)
         } else {
-            consume(SplashUI.PermissionsDenied)
+            renderOnView(SplashUI.PermissionsDenied)
         }
     }
 
@@ -98,7 +93,7 @@ class SplashViewModel(
             googleAccountCredential.selectedAccountName = user.accountName
             requestUserToken()
         } else {
-            consume(SplashUI.AccountNotExist)
+            renderOnView(SplashUI.AccountNotExist)
         }
     }
 
@@ -106,15 +101,15 @@ class SplashViewModel(
         requestToken().collect {
             when {
                 it.token != null -> {
-                    consume(SplashUI.NavigateToMain)
+                    renderOnView(SplashUI.NavigateToMain)
                 }
                 it.throwable is UserRecoverableAuthException -> {
                     val intent = (it.throwable as UserRecoverableAuthException).intent
-                    consume(SplashUI.YoutubePermissionsNeeded(intent))
+                    renderOnView(SplashUI.YoutubePermissionsNeeded(intent))
                 }
                 else -> {
                     it.throwable?.printStackTrace()
-                    consume(SplashUI.ShowError)
+                    renderOnView(SplashUI.ShowError)
                 }
             }
         }
@@ -126,7 +121,7 @@ class SplashViewModel(
 
     private fun saveUserAccount(account: String) = launch {
         if(!saveUser(User(accountName = account))) {
-            consume(SplashUI.ShowError)
+            renderOnView(SplashUI.ShowError)
         }
     }
 

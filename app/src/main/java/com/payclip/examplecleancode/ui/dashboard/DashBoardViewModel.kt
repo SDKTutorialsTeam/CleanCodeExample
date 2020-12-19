@@ -1,18 +1,17 @@
 package com.payclip.examplecleancode.ui.dashboard
 
-import androidx.lifecycle.LiveData
-import com.payclip.examplecleancode.arch.ActionState
 import com.payclip.examplecleancode.arch.ScopedViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
 
-class DashBoardViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<DashboardUI>(uiDispatcher) {
+class DashBoardViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<DashboardUI, DashboardAction>(uiDispatcher) {
 
-    override val model: LiveData<DashboardUI> = mModel
+    override val mutableState: MutableStateFlow<DashboardUI> = MutableStateFlow(DashboardUI.Init)
 
-    override fun dispatch(action: ActionState) {
+    override fun onAction(action: DashboardAction) {
         when(action) {
             DashboardAction.Start -> {
-                consume(DashboardUI.ChangeNavigation)
+                renderOnView(DashboardUI.ChangeNavigation)
             }
         }
     }

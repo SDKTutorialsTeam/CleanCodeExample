@@ -18,6 +18,7 @@ sealed class SplashAction : ActionState {
 }
 
 sealed class SplashUI : UiState {
+    object Init : SplashUI()
     object Start : SplashUI()
     object MissingPermissions : SplashUI()
     object PermissionsDenied : SplashUI()

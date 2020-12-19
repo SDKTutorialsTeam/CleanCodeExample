@@ -5,40 +5,37 @@ import android.view.View
 import android.widget.Toast
 import com.payclip.examplecleancode.R
 import com.payclip.examplecleancode.arch.BaseFragment
-import com.payclip.examplecleancode.arch.UiState
 import com.payclip.examplecleancode.extensions.navigateTo
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SplashFragment : BaseFragment<SplashUI, SplashViewModel>(R.layout.splash_fragment) {
+class SplashFragment : BaseFragment<SplashUI, SplashAction, SplashViewModel>(R.layout.splash_fragment) {
 
     override val viewModel: SplashViewModel by viewModel()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        with(viewModel) {
-            fragmentResultCompletion = resultSessionCompletion
-        }
+        fragmentResultCompletion = viewModel.resultSessionCompletion
+        sendAction(SplashAction.Start)
     }
 
-    override fun updateUi(state: UiState) {
+    override fun render(state: SplashUI) {
         when (state) {
-            SplashUI.Start -> viewModel.dispatch(SplashAction.CheckPermissions)
+            SplashUI.Init -> { }
+            SplashUI.Start -> sendAction(SplashAction.CheckPermissions)
             SplashUI.MissingPermissions -> {
                 activity?.let {
-                    viewModel.dispatch(SplashAction.RequestPermissions(it))
+                    sendAction(SplashAction.RequestPermissions(it))
                 }
             }
             SplashUI.PermissionsDenied -> Toast.makeText(requireContext(), "Permisos necesarios para continuar...", Toast.LENGTH_SHORT).show()
-            SplashUI.PermissionsGranted -> viewModel.dispatch(SplashAction.CheckAccount(viewLifecycleOwner))
-            SplashUI.AccountNotExist -> viewModel.dispatch(SplashAction.RequestAccount(registerForResult))
+            SplashUI.PermissionsGranted -> sendAction(SplashAction.CheckAccount(viewLifecycleOwner))
+            SplashUI.AccountNotExist -> sendAction(SplashAction.RequestAccount(registerForResult))
             SplashUI.AccountNotSelected -> Toast.makeText(requireContext(), "Cuenta necesaria para continuar...", Toast.LENGTH_SHORT).show()
-            is SplashUI.AccountSelected -> viewModel.dispatch(SplashAction.SaveAccount(state.accountName))
+            is SplashUI.AccountSelected -> sendAction(SplashAction.SaveAccount(state.accountName))
             is SplashUI.YoutubePermissionsNeeded -> {
-                with(viewModel) {
-                    fragmentResultCompletion = resultSessionTokenCompletion
-                    dispatch(SplashAction.RequestYoutubePermissions(registerForResult, state.intent))
-                }
+                fragmentResultCompletion = viewModel.resultSessionTokenCompletion
+                sendAction(SplashAction.RequestYoutubePermissions(registerForResult, state.intent))
             }
             SplashUI.NavigateToMain -> navigateTo(R.id.action_splashFragment_to_dashboardFragment)
             SplashUI.ShowError -> Toast.makeText(requireContext(), "Ocurrió un error al guardar los datos...", Toast.LENGTH_SHORT).show()

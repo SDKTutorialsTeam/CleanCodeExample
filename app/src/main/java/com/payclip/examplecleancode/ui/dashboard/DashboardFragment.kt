@@ -7,11 +7,10 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.payclip.examplecleancode.R
 import com.payclip.examplecleancode.arch.BaseFragment
-import com.payclip.examplecleancode.arch.UiState
 import com.payclip.examplecleancode.databinding.DashboardFragmentBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class DashboardFragment : BaseFragment<DashboardUI, DashBoardViewModel>(R.layout.dashboard_fragment) {
+class DashboardFragment : BaseFragment<DashboardUI, DashboardAction, DashBoardViewModel>(R.layout.dashboard_fragment) {
 
     override val viewModel: DashBoardViewModel by viewModel()
     private lateinit var binding: DashboardFragmentBinding
@@ -21,11 +20,12 @@ class DashboardFragment : BaseFragment<DashboardUI, DashBoardViewModel>(R.layout
         super.onViewCreated(view, savedInstanceState)
         binding = DashboardFragmentBinding.bind(view)
 
-        viewModel.dispatch(DashboardAction.Start)
+        sendAction(DashboardAction.Start)
     }
 
-    override fun updateUi(state: UiState) {
+    override fun render(state: DashboardUI) {
         when(state) {
+            DashboardUI.Init -> {}
             DashboardUI.ChangeNavigation -> {
                 navController = (childFragmentManager.findFragmentById(R.id.fragmentDashboard) as NavHostFragment).navController
                 binding.dashboardBottomNav.setupWithNavController(navController)

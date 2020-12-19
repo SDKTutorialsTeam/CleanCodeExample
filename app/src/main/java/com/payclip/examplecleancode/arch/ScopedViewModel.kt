@@ -1,22 +1,36 @@
 package com.payclip.examplecleancode.arch
 
 import androidx.annotation.CallSuper
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
-abstract class ScopedViewModel<UI : UiState>(uiDispatcher: CoroutineDispatcher)
+abstract class ScopedViewModel<UI : UiState, A: ActionState>(uiDispatcher: CoroutineDispatcher)
     : ViewModel(), Scope by Scope.Impl(uiDispatcher) {
 
-    val mModel = MutableLiveData<UI>()
-    abstract val model: LiveData<UI>
+    abstract val mutableState: MutableStateFlow<UI>
+    val state: StateFlow<UI>
+        get() = mutableState
+
+    val actionFlow: MutableSharedFlow<A> = MutableSharedFlow()
 
     init {
-        initScope()
+        start()
     }
 
-    abstract fun dispatch(action: ActionState)
+    private fun start() {
+        initScope()
+        viewModelScope.launch {
+            actionFlow.collect(::onAction)
+        }
+    }
+
+    abstract fun onAction(action: A)
 
     @CallSuper
     override fun onCleared() {
@@ -24,7 +38,8 @@ abstract class ScopedViewModel<UI : UiState>(uiDispatcher: CoroutineDispatcher)
         super.onCleared()
     }
 
-    fun consume(state: UI) {
-        mModel.value = state
+    fun renderOnView(state: UI) = launch {
+        mutableState.emit(state)
     }
+
 }

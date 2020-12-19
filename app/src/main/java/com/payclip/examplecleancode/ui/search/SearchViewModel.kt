@@ -1,16 +1,14 @@
 package com.payclip.examplecleancode.ui.search
 
-import androidx.lifecycle.LiveData
-import com.payclip.examplecleancode.arch.ActionState
 import com.payclip.examplecleancode.arch.ScopedViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
 
-class SearchViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<SearchUI>(uiDispatcher) {
+class SearchViewModel(uiDispatcher: CoroutineDispatcher) : ScopedViewModel<SearchUI, SearchAction>(uiDispatcher) {
 
-    override val model: LiveData<SearchUI>
-        get() = mModel
+    override val mutableState: MutableStateFlow<SearchUI> = MutableStateFlow(SearchUI.Init)
 
-    override fun dispatch(action: ActionState) {
+    override fun onAction(action: SearchAction) {
 
     }
 

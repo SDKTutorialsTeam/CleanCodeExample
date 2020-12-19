@@ -9,6 +9,7 @@ sealed class PopularAction : ActionState {
 }
 
 sealed class PopularUI : UiState {
+    object Init : PopularUI()
     object Loading: PopularUI()
     data class RenderVideos(val videoList: List<Video>): PopularUI()
 }

@@ -8,5 +8,6 @@ sealed class SearchAction : ActionState {
 }
 
 sealed class SearchUI : UiState {
+    object Init: SearchUI()
     object ChangeNavigation: SearchUI()
 }
